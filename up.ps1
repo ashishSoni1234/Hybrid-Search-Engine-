@@ -64,23 +64,23 @@ Write-Host "==========================================="
 # Start FastAPI in a new window
 Write-Host "Starting FastAPI server on port 8000..."
 Start-Process powershell -ArgumentList "-NoExit", "-Command", `
-    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; uvicorn backend.api.main:app --host 0.0.0.0 --port 8000"
+    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; uvicorn backend.api.main:app --host 127.0.0.1 --port 8000"
 
 Start-Sleep -Seconds 3
 
 # Start Streamlit in a new window
 Write-Host "Starting Streamlit dashboard on port 8501..."
 Start-Process powershell -ArgumentList "-NoExit", "-Command", `
-    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; streamlit run frontend\dashboard.py --server.port 8501 --server.address 0.0.0.0 --server.headless true"
+    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; streamlit run frontend\dashboard.py --server.port 8501 --server.address 127.0.0.1 --server.headless true"
 
 Write-Host ""
 Write-Host "==========================================="
 Write-Host " System is UP!                             "
 Write-Host "==========================================="
 Write-Host ""
-Write-Host " FastAPI Backend:  http://localhost:8000"
-Write-Host " API Swagger Docs: http://localhost:8000/docs"
-Write-Host " Streamlit App:    http://localhost:8501"
+Write-Host " FastAPI Backend:  http://127.0.0.1:8000"
+Write-Host " API Swagger Docs: http://127.0.0.1:8000/docs"
+Write-Host " Streamlit App:    http://127.0.0.1:8501"
 Write-Host ""
 Write-Host "Two new terminal windows have been opened."
 Write-Host "Close them to stop the servers."
