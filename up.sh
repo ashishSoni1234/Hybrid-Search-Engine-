@@ -24,7 +24,7 @@ else
 fi
 
 # Set PYTHONPATH so python -m module commands work
-export PYTHONPATH=$(pwd)
+export PYTHONPATH="."
 
 # 2) Install dependencies
 echo "Installing dependencies..."
