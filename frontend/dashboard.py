@@ -8,7 +8,7 @@ import os
 st.set_page_config(layout="wide", page_title="Hybrid Knowledge Search")
 
 # Constants
-API_URL = "http://localhost:8000"
+API_URL = "http://127.0.0.1:8000"
 DB_PATH = os.path.join("data", "metrics", "observability.db")
 
 def search_page():

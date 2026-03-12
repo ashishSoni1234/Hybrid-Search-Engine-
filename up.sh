@@ -56,10 +56,10 @@ else
 fi
 
 echo "Running tests..."
-pytest tests/
+$PYTHON_CMD -m pytest tests/
 
 echo "Running eval (generating experiments.csv)..."
-python -m backend.eval --queries data/eval/queries.jsonl --qrels data/eval/qrels.json
+$PYTHON_CMD -m backend.eval --queries data/eval/queries.jsonl --qrels data/eval/qrels.json
 
 echo "==========================================="
 echo " Starting Services...                      "
@@ -68,9 +68,17 @@ echo "==========================================="
 # Kill running processes on these ports if any (useful for restarts)
 # This part is somewhat OS dependent, kept simple for standard unix-like
 
+# Setup trap to catch CTRL+C and cleanly kill background processes
+cleanup() {
+    echo "Stopping background services..."
+    kill $FASTAPI_PID $STREAMLIT_PID 2>/dev/null || true
+    exit 0
+}
+trap cleanup SIGINT SIGTERM EXIT
+
 # 5) Start FastAPI server in background
 echo "Starting FastAPI server on port 8000..."
-uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 &
+$PYTHON_CMD -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8000 &
 FASTAPI_PID=$!
 
 # Wait a moment for the server to start
@@ -78,7 +86,7 @@ sleep 3
 
 # 6) Start Streamlit dashboard in background
 echo "Starting Streamlit dashboard..."
-streamlit run frontend/dashboard.py --server.port 8501 --server.address 0.0.0.0 --server.headless true &
+$PYTHON_CMD -m streamlit run frontend/dashboard.py --server.port 8501 --server.address 127.0.0.1 --server.headless true &
 STREAMLIT_PID=$!
 
 # 7) Print URLs
@@ -87,9 +95,9 @@ echo "==========================================="
 echo " System is UP and RUNNING!                 "
 echo "==========================================="
 echo ""
-echo " -> FastAPI Backend:   http://localhost:8000"
-echo " -> API Docs:          http://localhost:8000/docs"
-echo " -> Streamlit App:     http://localhost:8501"
+echo " -> FastAPI Backend:   http://127.0.0.1:8000"
+echo " -> API Docs:          http://127.0.0.1:8000/docs"
+echo " -> Streamlit App:     http://127.0.0.1:8501"
 echo ""
 echo "Press Ctrl+C to stop all services."
 echo "==========================================="
