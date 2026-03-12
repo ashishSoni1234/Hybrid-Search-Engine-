@@ -7,10 +7,19 @@ echo "==========================================="
 echo " Starting Hybrid Knowledge Search Setup... "
 echo "==========================================="
 
-# 1) Create virtual environment
+# 1) Detect Python command and create virtual environment
+if command -v python3 &>/dev/null; then
+    PYTHON_CMD=python3
+elif command -v python &>/dev/null; then
+    PYTHON_CMD=python
+else
+    echo "Error: Python 3 is not installed or not in PATH."
+    exit 1
+fi
+
 if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
-    python -m venv venv
+    echo "Creating virtual environment using $PYTHON_CMD..."
+    $PYTHON_CMD -m venv venv
 else
     echo "Virtual environment already exists."
 fi
@@ -28,7 +37,7 @@ export PYTHONPATH="."
 
 # 2) Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # 3) Download dataset if missing
 if [ ! -f "data/processed/docs.jsonl" ]; then
