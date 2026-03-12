@@ -25,7 +25,10 @@ def search_page():
     if st.button("Search") or query:
         if query:
             try:
-                response = requests.post(f"{API_URL}/search", json={
+                # Disable proxy usage forcefully to avoid Windows active refusal loops on localhost/127.0.0.1
+                session = requests.Session()
+                session.trust_env = False
+                response = session.post(f"{API_URL}/search", json={
                     "query": query,
                     "top_k": 10,
                     "alpha": alpha
