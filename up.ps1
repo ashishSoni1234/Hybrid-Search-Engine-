@@ -63,14 +63,14 @@ Write-Host "==========================================="
 
 # Start FastAPI in a new window
 Write-Host "Starting FastAPI server on port 8000..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", `
+Start-Process powershell -ArgumentList "-ExecutionPolicy", "Bypass", "-NoExit", "-Command", `
     "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; uvicorn backend.api.main:app --host 127.0.0.1 --port 8000"
 
 Start-Sleep -Seconds 3
 
 # Start Streamlit in a new window
 Write-Host "Starting Streamlit dashboard on port 8501..."
-Start-Process powershell -ArgumentList "-NoExit", "-Command", `
+Start-Process powershell -ArgumentList "-ExecutionPolicy", "Bypass", "-NoExit", "-Command", `
     "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; streamlit run frontend\dashboard.py --server.port 8501 --server.address 127.0.0.1 --server.headless true"
 
 Write-Host ""
