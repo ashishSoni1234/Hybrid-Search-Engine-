@@ -6,6 +6,7 @@ import requests
 import re
 from datetime import datetime
 from tqdm import tqdm
+from typing import List, Dict, Any, Optional
 
 BASE_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/"
 
@@ -156,8 +157,56 @@ TOPICS = [
 
 
 def normalize_text(text: str) -> str:
+    """
+    Cleans and normalizes text by collapsing sequential whitespace characters into a single space.
+    
+    Args:
+        text (str): The raw text extracted from the source API.
+        
+    Returns:
+        str: The stripped and whitespace-normalized string.
+    """
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
+
+def fetch_wikipedia_summary(topic: str, doc_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Fetches the Wikipedia REST API summary for a specific topic.
+    
+    Args:
+        topic (str): The Wikipedia topic title to request.
+        doc_id (int): The current linear document ID to map to the final JSON record.
+        
+    Returns:
+        Optional[Dict[str, Any]]: A typed dictionary representing the valid document record, or None if it fails bounds or HTTP requests.
+    """
+    try:
+        url = BASE_URL + topic
+        r = requests.get(url, timeout=8, headers={"User-Agent": "HybridSearchBot/1.0"})
+        
+        if r.status_code != 200:
+            return None
+            
+        data = r.json()
+        title = data.get("title", "")
+        text = normalize_text(data.get("extract", ""))
+        
+        if len(text) < 50:
+            return None
+            
+        return {
+            "doc_id": doc_id,
+            "title": title,
+            "text": text,
+            "source": "wikipedia",
+            "created_at": datetime.utcnow().isoformat()
+        }
+    except requests.exceptions.Timeout:
+        return None
+    except requests.exceptions.RequestException:
+        return None
+    except Exception:
+        return None
 
 
 def main():
@@ -179,34 +228,12 @@ def main():
         if doc_id > 400:
             break
 
-        try:
-            url = BASE_URL + topic
-            r = requests.get(url, timeout=8, headers={"User-Agent": "HybridSearchBot/1.0"})
-
-            if r.status_code != 200:
-                continue
-
-            data = r.json()
-            title = data.get("title", "")
-            text = normalize_text(data.get("extract", ""))
-
-            if len(text) < 50:
-                continue
-
-            doc = {
-                "doc_id": doc_id,
-                "title": title,
-                "text": text,
-                "source": "wikipedia",
-                "created_at": datetime.utcnow().isoformat()
-            }
-
+        doc = fetch_wikipedia_summary(topic, doc_id)
+        
+        if doc is not None:
             docs.append(doc)
             doc_id += 1
             pbar.set_postfix({"collected": len(docs)})
-
-        except Exception as e:
-            continue
 
         time.sleep(0.3)
 

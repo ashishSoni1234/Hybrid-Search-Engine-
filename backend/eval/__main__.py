@@ -4,7 +4,15 @@ import json
 import pandas as pd
 import numpy as np
 from collections import defaultdict
+import subprocess
+from datetime import datetime
 from backend.search.engine import HybridSearchEngine
+
+def get_git_commit():
+    try:
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode("utf-8").strip()
+    except Exception:
+        return "unknown"
 
 def calculate_mrr(rankings, qrels):
     mrr = 0.0
@@ -86,6 +94,8 @@ def main():
         print(f"Alpha {alpha:0.2f} -> MRR@10: {mrr:.4f}, Recall@10: {recall:.4f}, nDCG@10: {ndcg:.4f}")
         
         experiments.append({
+            "timestamp": datetime.utcnow().isoformat(),
+            "git_commit": get_git_commit(),
             "alpha": alpha,
             "mrr_at_10": mrr,
             "recall_at_10": recall,
@@ -94,9 +104,13 @@ def main():
         
     df = pd.DataFrame(experiments)
     
-    os.makedirs(os.path.dirname("data/metrics/experiments.csv"), exist_ok=True)
-    df.to_csv("data/metrics/experiments.csv", index=False)
-    print("Evaluation results saved to data/metrics/experiments.csv")
+    filepath = "data/metrics/experiments.csv"
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    if os.path.exists(filepath):
+        df.to_csv(filepath, mode='a', header=False, index=False)
+    else:
+        df.to_csv(filepath, index=False)
+    print("Evaluation results appended to data/metrics/experiments.csv")
 
 if __name__ == "__main__":
     main()

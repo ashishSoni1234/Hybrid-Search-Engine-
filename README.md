@@ -19,7 +19,7 @@ Run the following command to completely set up and run the system. This handles 
 ./up.sh
 ```
 
-*(On Windows, run from Bash or execute `./up.ps1` if converted, but standard Shell/Bash emulators like Git Bash can run `./up.sh` directly)*
+*(On Windows PowerShell, run: `powershell -ExecutionPolicy Bypass -File .\up.ps1`)*
 
 Then visit `http://localhost:8501` to use the Streamlit Dashboard.
 

@@ -102,13 +102,38 @@ def eval_page():
         st.warning("No evaluation results found. Please run the evaluation script.")
 
 def logs_page():
-    st.title("Observability Logs")
+    st.title("Observability / Debug Logs")
     
     try:
         conn = sqlite3.connect(DB_PATH)
         df = pd.read_sql_query("SELECT * FROM search_logs ORDER BY timestamp DESC", conn)
         conn.close()
         
+        st.subheader("Filter Logs")
+        col1, col2 = st.columns(2)
+        with col1:
+            severity = st.selectbox("Severity", ["All", "INFO", "ERROR"])
+        with col2:
+            time_range = st.selectbox("Time Range", ["All Time", "Last Hour", "Last 24 Hours"])
+            
+        if not df.empty:
+            df["timestamp"] = pd.to_datetime(df["timestamp"])
+            
+            # Using current local time
+            now = pd.Timestamp.now()
+            
+            if time_range == "Last Hour":
+                df = df[df["timestamp"] >= now - pd.Timedelta(hours=1)]
+            elif time_range == "Last 24 Hours":
+                df = df[df["timestamp"] >= now - pd.Timedelta(days=1)]
+                
+            df["error"] = df["error"].fillna("")
+            
+            if severity == "ERROR":
+                df = df[df["error"] != ""]
+            elif severity == "INFO":
+                df = df[df["error"] == ""]
+                
         st.dataframe(df)
     except Exception as e:
         st.error(f"Failed to load SQLite DB: {e}")
