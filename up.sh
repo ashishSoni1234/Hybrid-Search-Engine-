@@ -32,6 +32,9 @@ else
     source venv/bin/activate
 fi
 
+# Inside the virtual environment, the command is reliably 'python' across all OS architectures
+PYTHON_CMD="python"
+
 # Set PYTHONPATH so python -m module commands work
 export PYTHONPATH="."
 
