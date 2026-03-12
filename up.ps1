@@ -71,7 +71,7 @@ Start-Sleep -Seconds 3
 # Start Streamlit in a new window
 Write-Host "Starting Streamlit dashboard on port 8501..."
 Start-Process powershell -ArgumentList "-NoExit", "-Command", `
-    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; streamlit run frontend\dashboard.py --server.port 8501 --server.address 0.0.0.0"
+    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; streamlit run frontend\dashboard.py --server.port 8501 --server.address 0.0.0.0 --server.headless true"
 
 Write-Host ""
 Write-Host "==========================================="

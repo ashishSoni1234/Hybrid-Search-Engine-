@@ -78,7 +78,7 @@ sleep 3
 
 # 6) Start Streamlit dashboard in background
 echo "Starting Streamlit dashboard..."
-streamlit run frontend/dashboard.py --server.port 8501 --server.address 0.0.0.0 &
+streamlit run frontend/dashboard.py --server.port 8501 --server.address 0.0.0.0 --server.headless true &
 STREAMLIT_PID=$!
 
 # 7) Print URLs
