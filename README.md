@@ -21,7 +21,7 @@ Run the following command to completely set up and run the system. This handles 
 
 *(On Windows PowerShell, run: `powershell -ExecutionPolicy Bypass -File .\up.ps1`)*
 
-Then visit `http://localhost:8501` to use the Streamlit Dashboard.
+Then visit `http://127.0.0.1:8501` to use the Streamlit Dashboard.
 
 ## How to Run Search
 
@@ -29,7 +29,7 @@ Once the servers are running, access the dashboard and use the **Search** page.
 
 You can also use the API directly:
 ```bash
-curl -X POST "http://localhost:8000/search" \
+curl -X POST "http://127.0.0.1:8000/search" \
      -H "Content-Type: application/json" \
      -d '{"query": "machine learning", "top_k": 5, "alpha": 0.5}'
 ```
