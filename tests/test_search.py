@@ -54,7 +54,7 @@ def test_preprocessing():
 
 def test_bm25_scoring():
     from rank_bm25 import BM25Okapi
-    corpus = [["hello", "there", "friend"], ["goodbye", "world", "friend"]]
+    corpus = [["hello", "there", "friend"], ["goodbye", "world", "friend"], ["foo", "bar"], ["one", "two"]]
     bm25 = BM25Okapi(corpus)
     scores = bm25.get_scores(["hello"])
     assert scores[0] > scores[1]  # The first doc contains 'hello', so it should rank higher
