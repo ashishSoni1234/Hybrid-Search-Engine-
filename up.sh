@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "==========================================="
+echo " Starting Hybrid Knowledge Search Setup... "
+echo "==========================================="
+
+# 1) Create virtual environment
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python -m venv venv
+else
+    echo "Virtual environment already exists."
+fi
+
+# Activate virtual environment
+# Windows Git Bash compatibility
+if [ -f "venv/Scripts/activate" ]; then
+    source venv/Scripts/activate
+else
+    source venv/bin/activate
+fi
+
+# Set PYTHONPATH so python -m module commands work
+export PYTHONPATH=$(pwd)
+
+# 2) Install dependencies
+echo "Installing dependencies..."
+pip install -r requirements.txt
+
+# 3) Download dataset if missing
+if [ ! -f "data/processed/docs.jsonl" ]; then
+    echo "Dataset mostly missing. Fetching Wikipedia summaries (~400 documents)..."
+    python -m backend.ingest --input data/raw --out data/processed
+else
+    echo "Dataset already present at data/processed/docs.jsonl."
+fi
+
+# 4) Build indexes if missing
+if [ ! -f "data/index/bm25/index.pkl" ] || [ ! -f "data/index/vector/index.faiss" ]; then
+    echo "Indexes missing. Building BM25 and Vector indexes..."
+    python -m backend.index --input data/processed/docs.jsonl
+else
+    echo "Indexes already exist."
+fi
+
+echo "Running tests..."
+pytest tests/
+
+echo "Running eval (generating experiments.csv)..."
+python -m backend.eval --queries data/eval/queries.jsonl --qrels data/eval/qrels.json
+
+echo "==========================================="
+echo " Starting Services...                      "
+echo "==========================================="
+
+# Kill running processes on these ports if any (useful for restarts)
+# This part is somewhat OS dependent, kept simple for standard unix-like
+
+# 5) Start FastAPI server in background
+echo "Starting FastAPI server on port 8000..."
+uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 &
+FASTAPI_PID=$!
+
+# Wait a moment for the server to start
+sleep 3
+
+# 6) Start Streamlit dashboard in background
+echo "Starting Streamlit dashboard..."
+streamlit run frontend/dashboard.py --server.port 8501 --server.address 0.0.0.0 &
+STREAMLIT_PID=$!
+
+# 7) Print URLs
+echo ""
+echo "==========================================="
+echo " System is UP and RUNNING!                 "
+echo "==========================================="
+echo ""
+echo " -> FastAPI Backend:   http://localhost:8000"
+echo " -> API Docs:          http://localhost:8000/docs"
+echo " -> Streamlit App:     http://localhost:8501"
+echo ""
+echo "Press Ctrl+C to stop all services."
+echo "==========================================="
+
+# Wait for both background processes
+wait $FASTAPI_PID $STREAMLIT_PID
