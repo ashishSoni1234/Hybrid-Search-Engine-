@@ -5,9 +5,9 @@ Write-Host " Hybrid Knowledge Search - Setup (Windows) "
 Write-Host "==========================================="
 
 # 1) Create virtual environment
-if (-Not (Test-Path "venv")) {
+if (-Not (Test-Path ".venv")) {
     Write-Host "Creating virtual environment..."
-    python -m venv venv
+    python -m venv .venv
 }
 else {
     Write-Host "Virtual environment already exists."
@@ -15,7 +15,7 @@ else {
 
 # Activate virtual environment
 Write-Host "Activating virtual environment..."
-& ".\venv\Scripts\Activate.ps1"
+& ".\.venv\Scripts\Activate.ps1"
 
 # Set PYTHONPATH so -m module imports work
 $env:PYTHONPATH = (Get-Location).Path
@@ -64,14 +64,14 @@ Write-Host "==========================================="
 # Start FastAPI in a new window
 Write-Host "Starting FastAPI server on port 8000..."
 Start-Process powershell -ArgumentList "-ExecutionPolicy", "Bypass", "-NoExit", "-Command", `
-    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; uvicorn backend.api.main:app --host 127.0.0.1 --port 8000"
+    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\.venv\Scripts\python.exe -m uvicorn backend.api.main:app --host 127.0.0.1 --port 8000"
 
 Start-Sleep -Seconds 3
 
 # Start Streamlit in a new window
 Write-Host "Starting Streamlit dashboard on port 8501..."
 Start-Process powershell -ArgumentList "-ExecutionPolicy", "Bypass", "-NoExit", "-Command", `
-    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\venv\Scripts\Activate.ps1; streamlit run frontend\dashboard.py --server.port 8501 --server.address 127.0.0.1 --server.headless true"
+    "cd '$((Get-Location).Path)'; `$env:PYTHONPATH='$((Get-Location).Path)'; .\.venv\Scripts\python.exe -m streamlit run frontend\dashboard.py --server.port 8501 --server.address 127.0.0.1 --server.headless true"
 
 Write-Host ""
 Write-Host "==========================================="

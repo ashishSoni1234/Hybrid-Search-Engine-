@@ -17,19 +17,19 @@ else
     exit 1
 fi
 
-if [ ! -d "venv" ]; then
+if [ ! -d ".venv" ]; then
     echo "Creating virtual environment using $PYTHON_CMD..."
-    $PYTHON_CMD -m venv venv
+    $PYTHON_CMD -m venv .venv
 else
     echo "Virtual environment already exists."
 fi
 
 # Activate virtual environment
 # Windows Git Bash compatibility
-if [ -f "venv/Scripts/activate" ]; then
-    source venv/Scripts/activate
+if [ -f ".venv/Scripts/activate" ]; then
+    source .venv/Scripts/activate
 else
-    source venv/bin/activate
+    source .venv/bin/activate
 fi
 
 # Inside the virtual environment, the command is reliably 'python' across all OS architectures
